@@ -27,8 +27,8 @@ public:
     ZZ & operator-=(ZZ const & a) { mpz_sub(data, data, a.data); return *this; }
     ZZ & operator*=(ZZ const & a) { mpz_mul(data, data, a.data); return *this; }
 
-    ZZ operator-() const { ZZ res; mpz_neg(res.data, data); return res; }
-    ZZ operator~() const { return (*this == 1 || *this == -1) ? *this : 0; }
+    friend ZZ operator-(ZZ const & a) { ZZ res; mpz_neg(res.data, a.data); return res; }
+    friend ZZ operator~(ZZ const & a) { return (a == 1 || a == -1) ? a : zero; }
 
     static ZZ const & Zero() { return zero; }
     static ZZ const & One() { return one; }
