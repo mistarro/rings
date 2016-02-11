@@ -13,7 +13,7 @@ class ZZ
 public:
     ZZ() { mpz_init(data); }
     ZZ(ZZ const & a) { mpz_init_set(data, a.data); }
-    ZZ(ZZ && a) { mpz_swap(data, a.data); }
+    ZZ(ZZ && a) { mpz_init(data); mpz_swap(data, a.data); }
     ZZ(int a) { mpz_init_set_si(data, a); }
     explicit ZZ(SmallInt a) { mpz_init_set_si(data, a); }
     explicit ZZ(SmallNat a) { mpz_init_set_ui(data, a); }
@@ -140,14 +140,14 @@ inline ZZ InvMod(ZZ const & a, ZZ const & n)
 {
     ZZ res;
     if (!mpz_invert(res.data, a.data, n.data))
-        return ZZ::Zero();
+        return ZZ::zero;
     return res;
 }
 
 inline ZZ PowMod(ZZ const & a, ZZ const & e, ZZ const & n)
 {
     if (e < 0 && Gcd(a, n) != 1)
-        return ZZ::Zero();
+        return ZZ::zero;
     ZZ res;
     mpz_powm(res.data, a.data, e.data, n.data);
     return res;
