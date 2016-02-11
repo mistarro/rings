@@ -4,6 +4,7 @@
 #include <string>
 
 #include "ZZ.hpp"
+#include "common.hpp"
 
 template <class R, unsigned ID>
 class Rmod;
