@@ -6,6 +6,18 @@
 #include "ZZ.hpp"
 
 template <class R, unsigned ID>
+class Rmod;
+
+template <class R, unsigned ID>
+std::string ToStringSpec(Rmod<R, ID> const &);
+
+template <class R, unsigned ID>
+Rmod<R, ID> operator-(Rmod<R, ID> const &);
+
+template <class R, unsigned ID>
+Rmod<R, ID> operator~(Rmod<R, ID> const &);
+
+template <class R, unsigned ID>
 class Rmod
 {
 public:
@@ -16,12 +28,15 @@ public:
     template <typename S>
     Rmod(S const &);
 
+    Rmod & operator=(Rmod const &) = default;
+    Rmod & operator=(Rmod &&) = default;
+
     Rmod & operator+=(Rmod const &);
     Rmod & operator-=(Rmod const &);
     Rmod & operator*=(Rmod const &);
 
-    friend Rmod<R, ID> operator-(Rmod<R, ID> const &);
-    friend Rmod<R, ID> operator~(Rmod<R, ID> const &);
+    friend Rmod<R, ID> operator-<R, ID>(Rmod<R, ID> const &);
+    friend Rmod<R, ID> operator~<R, ID>(Rmod<R, ID> const &);
 
     static Rmod const & Zero();
     static Rmod const & One();
@@ -33,7 +48,7 @@ public:
 
     // output
     std::string ToString() const;
-    friend std::string ToString(Rmod<R, ID> const &);
+    friend std::string ToStringSpec<R, ID>(Rmod<R, ID> const & a);
     std::size_t StringLength() const;
     bool NeedParentheses() const;
 
@@ -63,10 +78,10 @@ template <class R, unsigned ID>
 R Rmod<R, ID>::modulus(0);
 
 template <class R, unsigned ID>
-Rmod Rmod<R, ID>::zero(0);
+Rmod<R, ID> Rmod<R, ID>::zero(0);
 
 template <class R, unsigned ID>
-Rmod Rmod<R, ID>::one(1);
+Rmod<R, ID> Rmod<R, ID>::one(1);
 
 template <class R, unsigned ID>
 template <typename S>
@@ -77,7 +92,7 @@ inline Rmod<R, ID>::Rmod(S const & a)
 }
 
 template <class R, unsigned ID>
-inline Rmod & Rmod<R, ID>::operator+=(Rmod const & a)
+inline Rmod<R, ID> & Rmod<R, ID>::operator+=(Rmod const & a)
 {
     value += a.value;
     value %= modulus;
@@ -85,7 +100,7 @@ inline Rmod & Rmod<R, ID>::operator+=(Rmod const & a)
 }
 
 template <class R, unsigned ID>
-inline Rmod & Rmod<R, ID>::operator-=(Rmod const & a)
+inline Rmod<R, ID> & Rmod<R, ID>::operator-=(Rmod const & a)
 {
     value -= a.value;
     value %= modulus;
@@ -93,7 +108,7 @@ inline Rmod & Rmod<R, ID>::operator-=(Rmod const & a)
 }
 
 template <class R, unsigned ID>
-inline Rmod & Rmod<R, ID>::operator*=(Rmod const & a)
+inline Rmod<R, ID> & Rmod<R, ID>::operator*=(Rmod const & a)
 {
     value *= a.value;
     value %= modulus;
@@ -101,13 +116,13 @@ inline Rmod & Rmod<R, ID>::operator*=(Rmod const & a)
 }
 
 template <class R, unsigned ID>
-inline Rmod const & Rmod<R, ID>::Zero()
+inline Rmod<R, ID> const & Rmod<R, ID>::Zero()
 {
     return zero;
 }
 
 template <class R, unsigned ID>
-inline Rmod const & Rmod<R, ID>::One()
+inline Rmod<R, ID> const & Rmod<R, ID>::One()
 {
     return one;
 }
@@ -125,29 +140,29 @@ inline bool Rmod<R, ID>::operator!=(Rmod const & a) const
 }
 
 template <class R, unsigned ID>
-inline Rmod operator-(Rmod<R, ID> const & a)
+inline Rmod<R, ID> operator-(Rmod<R, ID> const & a)
 {
     return -a.value;
 }
 
 template <class R, unsigned ID>
-inline Rmod operator~(Rmod<R, ID> const & a)
+inline Rmod<R, ID> operator~(Rmod<R, ID> const & a)
 {
     return InvMod(a.value, a.modulus);
 }
 
 template <class R, unsigned ID>
-inline std::string Rmod<R, ID>::ToString() const
+inline std::string ToStringSpec(Rmod<R, ID> const & a)
 {
-	// every specialization may define its own ToString non-member function;
-	// default is to return value.ToString() (see below);
-    return ToString(*this);
+    return a.value.ToString();
 }
 
 template <class R, unsigned ID>
-inline std::string ToString(Rmod<R, ID> const & a)
+inline std::string Rmod<R, ID>::ToString() const
 {
-    return a.value.ToString();
+	// every specialization may define its own ToStringSpec non-member function;
+	// default is to return value.ToString() (see above);
+    return ToStringSpec(*this);
 }
 
 template <class R, unsigned ID>
@@ -189,7 +204,7 @@ inline R const & Rmod<R, ID>::Modulus()
 template <class R, unsigned ID>
 inline void Rmod<R, ID>::Init(R && m)
 {
-    modulus = std::forward(m);
+    modulus = std::forward<R>(m);
 }
 
 #endif // RINGS__RMOD_HPP__
